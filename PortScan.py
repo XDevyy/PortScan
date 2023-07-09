@@ -1,40 +1,17 @@
 import socket
-import sys
 
+target = input("Enter the target IP address: ")
+min_port = int(input("Enter the minimum port number: "))
+max_port = int(input("Enter the maximum port number: "))
 
-def scanHost(ip, startPort, endPort):
-    print('[*] Starting TCP port scan on host %s' % ip)
-    # Begin TCP scan on host
-    tcp_scan(ip, startPort, endPort)
-    print('[+] TCP scan on host %s complete' % ip)
+print(f"\nScanning ports {min_port} to {max_port} on {target}...\n")
 
+for port in range(min_port, max_port + 1):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(1)
+    result = sock.connect_ex((target, port))
+    if result == 0:
+        print(f"Port {port}: Open")
+    sock.close()
 
-def scanRange(network, startPort, endPort):
-    print('[*] Starting TCP port scan on network %s.0' % network)
-    for host in range(1, 255):
-        ip = network + '.' + str(host)
-        tcp_scan(ip, startPort, endPort)
-
-    print('[+] TCP scan on network %s.0 complete' % network)
-
-
-def tcp_scan(ip, startPort, endPort):
-    for port in range(startPort, endPort + 1):
-        try:
-            tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            if not tcp.connect_ex((ip, port)):
-                print('[+] %s:%d/TCP Open' % (ip, port))
-                tcp.close()
-        except Exception:
-            pass
-            
-
-def main():
-    socket.setdefaulttimeout(0.01)
-    network = input("IP ADDRESS: ")
-    startPort = int(input("START PORT: "))
-    endPort = int(input("END PORT: "))
-    scanHost(network, startPort, endPort)
-
-main()
-end = input("Press any key to close")
+print("\nPort scanning complete.")
